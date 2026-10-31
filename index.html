@@ -25,16 +25,24 @@
                     },
                     colors: {
                         dashboard: {
-                            bg: '#f8fafc',      /* Slate 50 */
+                            bg: '#f8fafc',
                             card: '#ffffff',
-                            border: '#e2e8f0',  /* Slate 200 */
-                            text: '#0f172a',    /* Slate 900 */
-                            muted: '#64748b',   /* Slate 500 */
-                            primary: '#334155', /* Slate 700 */
-                            success: '#10b981', /* Emerald 500 */
-                            danger: '#ef4444',  /* Red 500 */
-                            warning: '#f59e0b', /* Amber 500 */
+                            border: '#e2e8f0',
+                            text: '#0f172a',
+                            muted: '#64748b',
+                            primary: '#334155',
+                            success: '#10b981',
+                            danger: '#ef4444',
+                            warning: '#f59e0b',
                         }
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+                        'tab-daily': 'inset 0 -2px 0 0 #f59e0b',
+                        'tab-household': 'inset 0 -2px 0 0 #10b981',
+                        'tab-admin': 'inset 0 -2px 0 0 #3b82f6',
+                        'tab-maint': 'inset 0 -2px 0 0 #f59e0b',
+                        'sticky': '4px 0 8px -3px rgba(0, 0, 0, 0.1)'
                     }
                 }
             }
@@ -49,81 +57,95 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: theme('colors.slate.100'); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: theme('colors.slate.300'); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: theme('colors.slate.400'); }
-
-        .sticky-col {
-            position: sticky;
-            left: 0;
-            background-color: white;
-            z-index: 10;
-            /* subtle right shadow for depth when scrolling */
-            box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05); 
+        .matrix-container::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
         }
-        
-        .sticky-header {
-            position: sticky;
-            left: 0;
-            background-color: theme('colors.slate.50');
-            z-index: 20;
-            box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05);
+        .matrix-container::-webkit-scrollbar-track {
+            background: theme('colors.slate.50');
+        }
+        .matrix-container::-webkit-scrollbar-thumb {
+            background-color: theme('colors.slate.300');
+            border-radius: 4px;
+        }
+        .matrix-container::-webkit-scrollbar-thumb:hover {
+            background-color: theme('colors.slate.400');
         }
 
-        /* Checkbox Box Animation */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: theme('colors.slate.200');
+            border-radius: 4px;
+        }
+
         @keyframes pop {
-            0% { transform: scale(0.80); opacity: 0.8; }
-            50% { transform: scale(1.15); opacity: 1; }
+            0% { transform: scale(0.90); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .check-anim { animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .node-active {
+            animation: pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
 
-        /* Accordion transition */
         .accordion-content {
             transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
-            max-height: 0; opacity: 0; overflow: hidden; padding-top: 0; padding-bottom: 0;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
         }
         .accordion-content.open {
-            max-height: 800px; opacity: 1; padding-top: 1.5rem; padding-bottom: 1.5rem; overflow-y: visible;
+            max-height: 800px; 
+            opacity: 1;
+            padding-top: 1.5rem; 
+            padding-bottom: 1.5rem;
+            overflow-y: visible;
         }
-        .accordion-icon { transition: transform 0.3s ease; }
-        .accordion-icon.open { transform: rotate(180deg); }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-icon.open {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-8 px-4 sm:px-6">
+<body class="min-h-screen flex flex-col items-center py-6 px-3 sm:px-6">
 
-    <main class="w-full max-w-5xl flex flex-col gap-6">
+    <main class="w-full max-w-4xl flex flex-col gap-5">
         
         <!-- Header -->
-        <header class="flex items-center justify-between bg-white p-5 rounded-xl border border-dashboard-border shadow-sm">
+        <header class="flex items-center justify-between bg-white p-5 rounded-xl border border-dashboard-border shadow-card">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-sm">
-                    <i class="ph ph-squares-four text-2xl"></i>
+                    <i class="ph ph-grid-nine text-2xl"></i>
                 </div>
                 <div>
                     <h1 class="font-bold text-xl leading-tight text-dashboard-text">Matrix<span class="text-dashboard-success">Pro</span></h1>
-                    <p class="text-xs text-dashboard-muted font-medium uppercase tracking-wider" id="headerDate"></p>
+                    <p class="text-[10px] sm:text-xs text-dashboard-muted font-medium uppercase tracking-wider" id="headerDate"></p>
                 </div>
             </div>
             <div class="text-right hidden sm:block">
-                <p class="text-sm text-dashboard-muted">Storage Active</p>
+                <p class="text-sm text-dashboard-muted">Dashboard Status</p>
                 <p class="text-sm font-semibold text-dashboard-success flex items-center justify-end gap-1">
-                    <span class="w-2 h-2 rounded-full bg-dashboard-success animate-pulse"></span> Local Linked
+                    <span class="w-2 h-2 rounded-full bg-dashboard-success animate-pulse"></span> Synchronized
                 </p>
             </div>
         </header>
 
-        <!-- TOP SECTION: Category Toggle -->
-        <section class="bg-white rounded-xl border border-dashboard-border shadow-sm overflow-hidden flex flex-col">
+        <!-- TOP SECTION: Tabbed Matrix Tracker -->
+        <section class="bg-white rounded-xl border border-dashboard-border shadow-card overflow-hidden flex flex-col">
             
-            <div class="bg-slate-50 border-b border-dashboard-border p-3 flex overflow-x-auto no-scrollbar justify-start sm:justify-center">
-                <div class="inline-flex bg-slate-200/70 p-1 rounded-lg gap-1 min-w-max">
-                    <button id="toggleDailyBtn" onclick="setActiveType('daily')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-dashboard-muted hover:text-dashboard-text whitespace-nowrap">
-                        <i class="ph ph-sun text-amber-500 mr-1"></i> Daily
+            <div class="bg-slate-50 border-b border-dashboard-border p-3 flex justify-start overflow-x-auto no-scrollbar">
+                <div class="inline-flex bg-slate-200/70 p-1 rounded-lg gap-1">
+                    <button id="toggleDailyBtn" onclick="setActiveType('daily')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-white text-dashboard-text shadow-sm ring-1 ring-slate-900/5 whitespace-nowrap">
+                        <i class="ph ph-sun text-dashboard-warning mr-1"></i> Daily
                     </button>
                     <button id="toggleHouseholdBtn" onclick="setActiveType('household')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-dashboard-muted hover:text-dashboard-text whitespace-nowrap">
                         <i class="ph ph-house text-dashboard-success mr-1"></i> Household
@@ -131,17 +153,28 @@
                     <button id="toggleAdminBtn" onclick="setActiveType('admin')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-dashboard-muted hover:text-dashboard-text whitespace-nowrap">
                         <i class="ph ph-briefcase text-blue-500 mr-1"></i> Admin
                     </button>
-                    <button id="toggleMaintenanceBtn" onclick="setActiveType('maintenance')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-dashboard-muted hover:text-dashboard-text whitespace-nowrap">
-                        <i class="ph ph-wrench text-dashboard-warning mr-1"></i> Maintenance
+                    <button id="toggleMaintBtn" onclick="setActiveType('maintenance')" class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-dashboard-muted hover:text-dashboard-text whitespace-nowrap">
+                        <i class="ph ph-wrench text-amber-500 mr-1"></i> Maint.
                     </button>
                 </div>
             </div>
 
-            <!-- THE MATRIX -->
-            <div class="flex flex-col relative w-full overflow-hidden">
-                <div id="matrixContainer" class="w-full overflow-x-auto custom-scrollbar relative">
-                    <!-- Table injected via JS -->
+            <!-- Horizontal Scroll Matrix Wrapper -->
+            <div class="matrix-container overflow-x-auto w-full relative bg-white min-h-[300px]">
+                
+                <!-- Table Object -->
+                <div class="inline-block min-w-full align-middle" id="matrixView">
+                    <!-- Populated via JS -->
                 </div>
+
+                <div id="emptyMatrixState" class="hidden flex-col items-center justify-center py-16 text-center w-full">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-400">
+                        <i class="ph ph-sparkles text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-dashboard-text">No Trackers Active</h3>
+                    <p class="text-sm text-dashboard-muted mt-1 max-w-sm px-4">Initialize some chores or logs below to configure your custom matrix layout.</p>
+                </div>
+
             </div>
         </section>
 
@@ -149,7 +182,7 @@
         <section class="flex flex-col gap-3">
             
             <!-- Accordion 1: Add New Chore -->
-            <div class="bg-white rounded-xl border border-dashboard-border shadow-sm overflow-hidden">
+            <div class="bg-white rounded-xl border border-dashboard-border shadow-card overflow-hidden">
                 <button class="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-slate-50 transition-colors" onclick="toggleAccordion('addChoreAccordion')">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded bg-slate-100 text-slate-600 flex items-center justify-center">
@@ -163,20 +196,20 @@
                     <div class="flex flex-col gap-4">
                         <div class="flex flex-wrap gap-4 mb-2">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="choreType" value="daily" checked class="text-amber-500 focus:ring-amber-500 w-4 h-4">
-                                <span class="text-sm font-medium text-dashboard-text">Daily</span>
+                                <input type="radio" name="choreType" value="daily" checked class="text-dashboard-warning focus:ring-dashboard-warning w-4 h-4">
+                                <span class="text-sm font-medium text-dashboard-text">Daily Chore</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" name="choreType" value="household" class="text-dashboard-success focus:ring-dashboard-success w-4 h-4">
-                                <span class="text-sm font-medium text-dashboard-text">Household (Wkly)</span>
+                                <span class="text-sm font-medium text-dashboard-text">Weekly Household</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" name="choreType" value="admin" class="text-blue-500 focus:ring-blue-500 w-4 h-4">
-                                <span class="text-sm font-medium text-dashboard-text">Admin (Wkly)</span>
+                                <span class="text-sm font-medium text-dashboard-text">Weekly Admin</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="choreType" value="maintenance" class="text-dashboard-warning focus:ring-dashboard-warning w-4 h-4">
-                                <span class="text-sm font-medium text-dashboard-text">Maintenance</span>
+                                <input type="radio" name="choreType" value="maintenance" class="text-amber-500 focus:ring-amber-500 w-4 h-4">
+                                <span class="text-sm font-medium text-dashboard-text">Maintenance Log</span>
                             </label>
                         </div>
                         
@@ -189,37 +222,37 @@
                                     type="text" 
                                     id="choreInput" 
                                     class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-sm transition-shadow h-10" 
-                                    placeholder="e.g., Vacuum, Check Filter, Read"
+                                    placeholder="e.g., Vacuum, Water plants, Trash day"
                                 >
                             </div>
                             <button 
                                 id="addChoreBtn"
-                                onclick="handleAddChore()"
                                 class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm whitespace-nowrap h-10"
                             >
-                                Add to Matrix
+                                Initialize Tracker
                             </button>
                         </div>
 
-                        <!-- Rotation Feature -->
+                        <!-- Rotation Feature Toggle -->
                         <div class="border-t border-slate-200 pt-3 mt-1">
                             <label class="flex items-center gap-2 cursor-pointer mb-3">
                                 <input type="checkbox" id="isRotatingCheck" onchange="toggleRotationInput()" class="text-dashboard-primary focus:ring-dashboard-primary w-4 h-4 rounded border-slate-300">
-                                <span class="text-sm font-medium text-dashboard-text">This is a rotating chore (cycles through sub-tasks)</span>
+                                <span class="text-sm font-medium text-dashboard-text">This is a rotating chore (cycles through a list of sub-tasks)</span>
                             </label>
                             
-                            <div id="rotationInputContainer" class="hidden">
+                            <div id="rotationInputContainer" class="hidden animate-fade-in">
                                 <label class="block text-xs font-semibold text-dashboard-muted uppercase tracking-wider mb-1.5">Enter sub-tasks in order (one per line)</label>
-                                <textarea id="rotationInput" rows="3" class="w-full p-3 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-dashboard-primary focus:border-dashboard-primary text-sm transition-shadow resize-none" placeholder="Living Room&#10;Bathrooms&#10;Kitchen"></textarea>
-                                <p class="text-xs text-slate-500 mt-1.5">Rotates automatically based on periods elapsed since creation.</p>
+                                <textarea id="rotationInput" rows="3" class="w-full p-3 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-dashboard-primary focus:border-dashboard-primary text-sm transition-shadow resize-none" placeholder="Task A&#10;Task B&#10;Task C"></textarea>
+                                <p class="text-xs text-slate-500 mt-1.5"><i class="ph ph-info mr-1"></i> Shifts automatically each cycle based on the timeframe category.</p>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <!-- Accordion 2: Notes & Gratitude -->
-            <div class="bg-white rounded-xl border border-dashboard-border shadow-sm overflow-hidden">
+            <!-- Accordion 2: Notes & Reflection -->
+            <div class="bg-white rounded-xl border border-dashboard-border shadow-card overflow-hidden">
                 <button class="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-slate-50 transition-colors" onclick="toggleAccordion('notesAccordion')">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded bg-yellow-50 text-yellow-600 flex items-center justify-center">
@@ -232,11 +265,11 @@
                 <div id="notesAccordion-content" class="accordion-content px-6 border-t border-dashboard-border bg-slate-50/50">
                     <div class="flex flex-col gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-dashboard-muted uppercase tracking-wider mb-2">Thoughts, focuses, or gratitude for this period</label>
-                            <textarea id="notesInput" rows="4" class="w-full p-3 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm transition-shadow resize-none"></textarea>
+                            <label class="block text-xs font-semibold text-dashboard-muted uppercase tracking-wider mb-2">Write down ad-hoc plans, updates, or thoughts</label>
+                            <textarea id="notesInput" rows="4" class="w-full p-3 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 text-sm transition-shadow resize-none" placeholder="Notes for today..."></textarea>
                         </div>
-                        <button id="saveNotesBtn" onclick="saveNotes()" class="w-full sm:w-auto self-end bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm whitespace-nowrap">
-                            Save Note
+                        <button id="saveNotesBtn" onclick="saveNotes()" class="w-full sm:w-auto self-end bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm whitespace-nowrap animate-all">
+                            Save Notes
                         </button>
                         <div id="notesHistory" class="mt-2 flex flex-col gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                             <!-- Injected via JS -->
@@ -246,7 +279,7 @@
             </div>
 
             <!-- Accordion 3: Settings -->
-            <div class="bg-white rounded-xl border border-dashboard-border shadow-sm overflow-hidden">
+            <div class="bg-white rounded-xl border border-dashboard-border shadow-card overflow-hidden">
                 <button class="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-slate-50 transition-colors" onclick="toggleAccordion('settingsAccordion')">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded bg-slate-100 text-slate-600 flex items-center justify-center">
@@ -260,10 +293,10 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white border border-red-100 rounded-lg">
                         <div>
                             <h4 class="text-sm font-semibold text-dashboard-text">Danger Zone</h4>
-                            <p class="text-xs text-dashboard-muted mt-1">Permanently delete all trackers and historical data.</p>
+                            <p class="text-xs text-dashboard-muted mt-1">Permanently reset and delete all chores, history and journal entries.</p>
                         </div>
                         <button onclick="clearAllData()" class="mt-3 sm:mt-0 px-4 py-2 bg-red-50 text-dashboard-danger hover:bg-red-100 hover:text-red-700 rounded-lg text-sm font-medium transition-colors border border-red-200">
-                            Clear Matrix Database
+                            Clear Database
                         </button>
                     </div>
                 </div>
@@ -273,17 +306,125 @@
     </main>
 
     <script>
-        // --- CONSTANTS & GLOBALS ---
+        // Use an independent state management container specifically for this layout variant
         const STORAGE_KEY = 'chores_pro_matrix';
         const NOTES_KEY = 'chores_pro_matrix_notes';
-        const DAYS_TO_SHOW = 14;  // Daily columns
-        const WEEKS_TO_SHOW = 12; // Weekly columns
         
+        const DAYS_TO_SHOW = 8;
+        const WEEKS_TO_SHOW = 8;
+
         let chores = [];
         let notesLog = {};
-        let activeType = 'household'; 
+        let activeType = 'daily';
 
-        // --- DATE UTILS ---
+        // DOM Elements
+        const headerDate = document.getElementById('headerDate');
+        const matrixView = document.getElementById('matrixView');
+        const emptyMatrixState = document.getElementById('emptyMatrixState');
+        const choreInput = document.getElementById('choreInput');
+        const addChoreBtn = document.getElementById('addChoreBtn');
+
+        function init() {
+            try {
+                // Global Clock display
+                const now = new Date();
+                headerDate.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+                const data = localStorage.getItem(STORAGE_KEY);
+                if (data && data !== "undefined" && data !== "null") {
+                    chores = JSON.parse(data) || [];
+                }
+
+                const notesData = localStorage.getItem(NOTES_KEY);
+                if (notesData && notesData !== "undefined" && notesData !== "null") {
+                    notesLog = JSON.parse(notesData) || {};
+                }
+
+                if (addChoreBtn) addChoreBtn.addEventListener('click', handleAddChore);
+                if (choreInput) {
+                    choreInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') handleAddChore();
+                    });
+                }
+
+                // If completely fresh load, nudge the adding pane
+                if (chores.length === 0) {
+                    toggleAccordion('addChoreAccordion');
+                }
+
+                renderAll();
+                renderNotesHistory();
+            } catch (err) {
+                console.error("Critical matrix loader initialization error:", err);
+                chores = [];
+                notesLog = {};
+                renderAll();
+            }
+        }
+
+        // Helper: Danish and European ISO-8601 Week Number
+        function getISOWeekDetails(date) {
+            const target = new Date(date.valueOf());
+            const dayNr = (date.getDay() + 6) % 7;
+            target.setDate(target.getDate() - dayNr + 3);
+            const firstThursday = target.valueOf();
+            target.setMonth(0, 1);
+            if (target.getDay() !== 4) {
+                target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+            }
+            const weekNum = 1 + Math.ceil((firstThursday - target) / 604800000);
+            return {
+                week: weekNum,
+                year: target.getFullYear()
+            };
+        }
+
+        function getPastISOWeeks(numWeeks) {
+            const weeks = [];
+            const today = new Date();
+            
+            // Loop backwards starting from the current week
+            for (let i = numWeeks - 1; i >= 0; i--) {
+                const target = new Date(today.valueOf());
+                // Shift backward by 7 days per increment
+                target.setDate(today.getDate() - (i * 7));
+                
+                // Set to Monday of that week
+                const day = target.getDay();
+                const diff = target.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(target.setDate(diff));
+                monday.setHours(0,0,0,0);
+                
+                const iso = getISOWeekDetails(monday);
+                
+                weeks.push({
+                    id: formatDate(monday), // uniquely index based on Monday Date 
+                    label: `Uge ${iso.week}`,
+                    meta: `${iso.year}`
+                });
+            }
+            return weeks;
+        }
+
+        function getPastDates(numDays) {
+            const dates = [];
+            const today = new Date();
+            for (let i = numDays - 1; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                
+                const weekdayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                const monthDay = d.getDate();
+
+                dates.push({
+                    id: formatDate(d),
+                    label: weekdayName,
+                    meta: monthDay
+                });
+            }
+            return dates;
+        }
+
         function formatDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -291,62 +432,20 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Get Monday of the week for a given date
-        function getMonday(d) {
-            const date = new Date(d);
-            date.setHours(0,0,0,0);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
-        }
-
-        // Generate arrays of dates for the headers
-        function getPastDates(numDays) {
-            const dates = [];
-            const today = new Date();
-            for (let i = numDays - 1; i >= 0; i--) {
-                const d = new Date(today);
-                d.setDate(today.getDate() - i);
-                dates.push(formatDate(d));
-            }
-            return dates;
-        }
-
-        function getPastWeeks(numWeeks) {
-            const weeks = [];
-            const currentMonday = getMonday(new Date());
-            for (let i = numWeeks - 1; i >= 0; i--) {
-                const d = new Date(currentMonday);
-                d.setDate(d.getDate() - (i * 7));
-                weeks.push(formatDate(d));
-            }
-            return weeks;
-        }
-
-        // Calculate ISO Week (Danish Standard)
-        function getISOWeek(dateStr) {
-            const d = new Date(dateStr + 'T12:00:00');
-            const date = new Date(d.getTime());
-            date.setHours(0, 0, 0, 0);
-            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-            const week1 = new Date(date.getFullYear(), 0, 4);
-            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-        }
-
-        // Math elapsed
         function getWeeksElapsed(startStr, endStr) {
             const start = new Date(startStr + 'T12:00:00');
             const end = new Date(endStr + 'T12:00:00');
-            return Math.floor((end - start) / (1000 * 60 * 60 * 24 * 7));
+            const diffTime = end - start;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
         }
 
         function getDaysElapsed(startStr, endStr) {
             const start = new Date(startStr + 'T12:00:00');
             const end = new Date(endStr + 'T12:00:00');
-            return Math.floor((end - start) / (1000 * 60 * 60 * 24));
+            const diffTime = end - start;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
         }
 
-        // Rotation Logic
         function getRotationTask(chore, targetDateStr) {
             if (!chore.isRotating || !chore.rotation || chore.rotation.length === 0) return null;
             if (targetDateStr < chore.createdAt) return null;
@@ -359,7 +458,142 @@
             }
             
             if (elapsed < 0) return null;
-            return chore.rotation[elapsed % chore.rotation.length];
+            const index = elapsed % chore.rotation.length;
+            return chore.rotation[index];
+        }
+
+        function toggleRotationInput() {
+            const isChecked = document.getElementById('isRotatingCheck').checked;
+            const container = document.getElementById('rotationInputContainer');
+            if (isChecked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+            
+            const content = document.getElementById('addChoreAccordion-content');
+            if (content.classList.contains('open')) {
+                content.style.maxHeight = '800px'; 
+            }
+        }
+
+        function setActiveType(type) {
+            activeType = type;
+            
+            const dailyBtn = document.getElementById('toggleDailyBtn');
+            const householdBtn = document.getElementById('toggleHouseholdBtn');
+            const adminBtn = document.getElementById('toggleAdminBtn');
+            const maintBtn = document.getElementById('toggleMaintBtn');
+            
+            if (dailyBtn && householdBtn && adminBtn && maintBtn) {
+                [dailyBtn, householdBtn, adminBtn, maintBtn].forEach(btn => {
+                    btn.className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-dashboard-muted hover:text-dashboard-text whitespace-nowrap";
+                });
+                
+                if (type === 'daily') {
+                    dailyBtn.className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-white text-dashboard-text shadow-sm ring-1 ring-slate-900/5 whitespace-nowrap";
+                } else if (type === 'household') {
+                    householdBtn.className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-white text-dashboard-text shadow-sm ring-1 ring-slate-900/5 whitespace-nowrap";
+                } else if (type === 'admin') {
+                    adminBtn.className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-white text-dashboard-text shadow-sm ring-1 ring-slate-900/5 whitespace-nowrap";
+                } else {
+                    maintBtn.className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-white text-dashboard-text shadow-sm ring-1 ring-slate-900/5 whitespace-nowrap";
+                }
+            }
+            renderAll();
+        }
+
+        function handleAddChore() {
+            if (!choreInput) return;
+            const name = choreInput.value.trim();
+            if (!name) return;
+
+            const typeRadios = document.getElementsByName('choreType');
+            let selectedType = 'daily';
+            for (let radio of typeRadios) {
+                if (radio.checked) {
+                    selectedType = radio.value;
+                    break;
+                }
+            }
+            
+            let isRotating = document.getElementById('isRotatingCheck').checked;
+            let rotationItems = [];
+            if (isRotating) {
+                const rawRotations = document.getElementById('rotationInput').value;
+                rotationItems = rawRotations.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+                if (rotationItems.length === 0) {
+                    isRotating = false;
+                }
+            }
+
+            const newId = (window.crypto && window.crypto.randomUUID) 
+                ? window.crypto.randomUUID() 
+                : Date.now().toString() + Math.random().toString(36).substring(2, 9);
+
+            // Establish genesis date matching their category logic
+            const today = new Date();
+            let createdDate = formatDate(today);
+            if (selectedType !== 'daily') {
+                // Set creation specifically to Monday matching the chronological ISO calendar
+                const day = today.getDay();
+                const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                createdDate = formatDate(new Date(today.setDate(diff)));
+            }
+
+            const newChore = {
+                id: newId,
+                name: name,
+                type: selectedType,
+                history: {},
+                createdAt: createdDate,
+                isRotating: isRotating,
+                rotation: rotationItems
+            };
+
+            chores.push(newChore);
+            setActiveType(selectedType);
+            
+            // reset UI state
+            choreInput.value = '';
+            document.getElementById('isRotatingCheck').checked = false;
+            document.getElementById('rotationInput').value = '';
+            toggleRotationInput();
+            
+            const content = document.getElementById('addChoreAccordion-content');
+            if (content && content.classList.contains('open')) {
+                toggleAccordion('addChoreAccordion');
+            }
+
+            saveData();
+        }
+
+        // Expose to window for event handler
+        window.toggleMatrixHistory = function(choreId, pointId) {
+            const chore = chores.find(h => h.id === choreId);
+            if (!chore) return;
+            
+            if (pointId < chore.createdAt) return;
+            if (!chore.history) chore.history = {};
+
+            if (chore.history[pointId]) {
+                delete chore.history[pointId];
+            } else {
+                chore.history[pointId] = true;
+            }
+            saveData();
+        };
+
+        window.deleteChore = function(id) {
+            if(confirm("Are you sure you want to permanently delete this tracker?")) {
+                chores = chores.filter(h => h.id !== id);
+                saveData();
+            }
+        };
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(chores));
+            renderAll();
         }
 
         function escapeHTML(str) {
@@ -369,221 +603,12 @@
             }[tag]));
         }
 
-        // --- GLOBAL ACTION: Toggle History ---
-        // Attaching to window ensures it works perfectly from the injected HTML
-        window.toggleHistory = function(choreId, dateStr) {
-            const chore = chores.find(h => h.id === choreId);
-            if (!chore) return;
-            if (dateStr < chore.createdAt) return;
-            
-            if (!chore.history) chore.history = {};
-
-            if (chore.history[dateStr]) {
-                delete chore.history[dateStr];
-            } else {
-                chore.history[dateStr] = true;
-            }
-            saveData();
-        };
-
-        window.deleteChore = function(id) {
-            if(confirm("Permanently delete this chore row?")) {
-                chores = chores.filter(h => h.id !== id);
-                saveData();
-            }
-        };
-
-        // --- INITIALIZATION ---
-        function init() {
-            const now = new Date();
-            document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-
-            try {
-                const data = localStorage.getItem(STORAGE_KEY);
-                if (data && data !== "undefined" && data !== "null") chores = JSON.parse(data) || [];
-                
-                const nData = localStorage.getItem(NOTES_KEY);
-                if (nData && nData !== "undefined" && nData !== "null") notesLog = JSON.parse(nData) || {};
-            } catch (err) {
-                chores = [];
-                notesLog = {};
-            }
-
-            document.getElementById('choreInput')?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleAddChore();
-            });
-
-            setActiveType('household');
-            renderNotesHistory();
-        }
-
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(chores));
-            renderMatrix();
-        }
-
-        window.setActiveType = function(type) {
-            activeType = type;
-            
-            const btnIds = ['toggleDailyBtn', 'toggleHouseholdBtn', 'toggleAdminBtn', 'toggleMaintenanceBtn'];
-            btnIds.forEach(id => {
-                const btn = document.getElementById(id);
-                if(btn) btn.className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-dashboard-muted hover:text-dashboard-text whitespace-nowrap";
-            });
-
-            let activeBtn = null;
-            if (type === 'daily') activeBtn = document.getElementById('toggleDailyBtn');
-            else if (type === 'household') activeBtn = document.getElementById('toggleHouseholdBtn');
-            else if (type === 'admin') activeBtn = document.getElementById('toggleAdminBtn');
-            else activeBtn = document.getElementById('toggleMaintenanceBtn');
-
-            if (activeBtn) {
-                activeBtn.className = "px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-white text-dashboard-text shadow-sm ring-1 ring-slate-900/5 whitespace-nowrap";
-            }
-
-            renderMatrix();
-        }
-
-        // --- RENDER MATRIX ---
-        function renderMatrix() {
-            const container = document.getElementById('matrixContainer');
-            if (!container) return;
-
-            const filteredChores = chores.filter(c => c.type === activeType);
-            const isDaily = activeType === 'daily';
-            
-            // Get columns (dates)
-            const targetDates = isDaily ? getPastDates(DAYS_TO_SHOW) : getPastWeeks(WEEKS_TO_SHOW);
-            const currentDateStr = isDaily ? formatDate(new Date()) : formatDate(getMonday(new Date()));
-
-            // Colors
-            let activeColorClass = 'bg-dashboard-success border-dashboard-success text-white';
-            let hoverColorClass = 'hover:border-dashboard-success';
-            if (activeType === 'daily') {
-                activeColorClass = 'bg-amber-500 border-amber-500 text-white';
-                hoverColorClass = 'hover:border-amber-500';
-            } else if (activeType === 'admin') {
-                activeColorClass = 'bg-blue-500 border-blue-500 text-white';
-                hoverColorClass = 'hover:border-blue-500';
-            }
-
-            if (filteredChores.length === 0) {
-                container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-16 text-center">
-                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-400">
-                            <i class="ph ph-squares-four text-3xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-dashboard-text">No Rows Here</h3>
-                        <p class="text-sm text-dashboard-muted mt-1">Add a ${activeType} chore to start the matrix.</p>
-                    </div>`;
-                return;
-            }
-
-            // Build Table
-            let html = `<table class="w-full text-left border-collapse border-b border-slate-200 min-w-max">`;
-            
-            // 1. Header Row
-            html += `<thead><tr>`;
-            html += `<th class="sticky-header p-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-r border-slate-200 min-w-[200px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">Chore Name</th>`;
-            
-            targetDates.forEach(dateStr => {
-                const d = new Date(dateStr + 'T12:00:00');
-                const isCurrent = dateStr === currentDateStr;
-                let headerText = '';
-                
-                if (isDaily) {
-                    headerText = `<div class="text-[10px] text-slate-400 font-medium">${d.toLocaleDateString('en-US', {weekday: 'short'})}</div>
-                                  <div class="text-sm font-bold text-slate-700">${d.getDate()}</div>`;
-                } else {
-                    // Danish Uge format
-                    headerText = `<div class="text-[10px] text-slate-400 font-medium">${d.toLocaleDateString('en-US', {month: 'short'})}</div>
-                                  <div class="text-sm font-bold text-slate-700 whitespace-nowrap">Uge ${getISOWeek(dateStr)}</div>`;
-                }
-
-                html += `<th class="p-3 text-center border-b border-slate-200 ${isCurrent ? 'bg-slate-100' : ''}">
-                            ${headerText}
-                         </th>`;
-            });
-            html += `</tr></thead><tbody>`;
-
-            // 2. Body Rows
-            filteredChores.forEach(chore => {
-                const history = chore.history || {};
-                
-                html += `<tr class="hover:bg-slate-50/50 transition-colors">`;
-                
-                // Sticky Col: Chore Name + Rotation Info
-                let rotationHTML = '';
-                if (chore.isRotating) {
-                    const currentTask = getRotationTask(chore, currentDateStr);
-                    if (currentTask) {
-                        rotationHTML = `<div class="text-xs text-dashboard-muted mt-1 truncate max-w-[180px]" title="${escapeHTML(currentTask)}">
-                                            <i class="ph ph-arrows-clockwise text-[10px]"></i> ${escapeHTML(currentTask)}
-                                        </div>`;
-                    }
-                }
-
-                html += `
-                    <td class="sticky-col p-4 border-b border-r border-slate-200 bg-white">
-                        <div class="flex justify-between items-start gap-2">
-                            <div>
-                                <div class="text-sm font-bold text-dashboard-text">${escapeHTML(chore.name)}</div>
-                                ${rotationHTML}
-                            </div>
-                            <button onclick="deleteChore('${chore.id}')" class="text-slate-300 hover:text-red-500 mt-0.5">
-                                <i class="ph ph-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-
-                // Columns: Checkboxes
-                targetDates.forEach(dateStr => {
-                    const isCompleted = !!history[dateStr];
-                    const isBeforeCreation = dateStr < chore.createdAt;
-                    const isCurrent = dateStr === currentDateStr;
-                    
-                    let btnClass = "w-8 h-8 rounded border flex items-center justify-center mx-auto transition-all ";
-                    let iconHtml = '';
-
-                    if (isBeforeCreation) {
-                        btnClass += "bg-slate-50 border-slate-100 cursor-not-allowed";
-                        iconHtml = `<div class="w-1.5 h-1.5 rounded-full bg-slate-200"></div>`;
-                    } else {
-                        if (isCompleted) {
-                            btnClass += `${activeColorClass} check-anim shadow-sm`;
-                            iconHtml = `<i class="ph-bold ph-check text-white"></i>`;
-                        } else {
-                            btnClass += `bg-white border-slate-300 ${hoverColorClass} cursor-pointer hover:bg-slate-50`;
-                            if (isCurrent) btnClass += ` ring-2 ring-slate-100`;
-                        }
-                    }
-
-                    // Add onclick only if valid
-                    const onClickStr = !isBeforeCreation ? `onclick="window.toggleHistory('${chore.id}', '${dateStr}')"` : '';
-
-                    html += `<td class="p-2 border-b border-slate-200 ${isCurrent ? 'bg-slate-50' : ''}">
-                                <button class="${btnClass}" ${onClickStr}>${iconHtml}</button>
-                             </td>`;
-                });
-
-                html += `</tr>`;
-            });
-
-            html += `</tbody></table>`;
-            container.innerHTML = html;
-
-            // Scroll to the far right (most recent day/week)
-            setTimeout(() => {
-                container.scrollLeft = container.scrollWidth;
-            }, 10);
-        }
-
-        // --- ACCORDION LOGIC ---
-        window.toggleAccordion = function(id) {
+        function toggleAccordion(id) {
             const content = document.getElementById(`${id}-content`);
             const icon = document.getElementById(`${id}-icon`);
+            
             if (!content || !icon) return;
+
             if (content.classList.contains('open')) {
                 content.classList.remove('open');
                 icon.classList.remove('open');
@@ -591,122 +616,226 @@
                 content.classList.add('open');
                 icon.classList.add('open');
             }
-        };
+        }
 
-        window.toggleRotationInput = function() {
-            const isChecked = document.getElementById('isRotatingCheck').checked;
-            const container = document.getElementById('rotationInputContainer');
-            if (isChecked) {
-                container.classList.remove('hidden');
-                container.classList.add('block');
-            } else {
-                container.classList.add('hidden');
-                container.classList.remove('block');
-            }
-        };
-
-        window.handleAddChore = function() {
-            const input = document.getElementById('choreInput');
-            if (!input) return;
-            const name = input.value.trim();
-            if (!name) return;
-
-            const typeRadios = document.getElementsByName('choreType');
-            let selectedType = 'daily';
-            for (let radio of typeRadios) {
-                if (radio.checked) { selectedType = radio.value; break; }
-            }
-            
-            let isRotating = document.getElementById('isRotatingCheck').checked;
-            let rotationItems = [];
-            if (isRotating) {
-                const rawRotations = document.getElementById('rotationInput').value;
-                rotationItems = rawRotations.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-                if (rotationItems.length === 0) isRotating = false;
-            }
-
-            const newId = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : Date.now().toString();
-            const createdDate = selectedType === 'daily' ? formatDate(new Date()) : formatDate(getMonday(new Date()));
-
-            chores.push({
-                id: newId, name: name, type: selectedType, history: {},
-                createdAt: createdDate, isRotating: isRotating, rotation: rotationItems
-            });
-            
-            input.value = '';
-            document.getElementById('isRotatingCheck').checked = false;
-            document.getElementById('rotationInput').value = '';
-            toggleRotationInput();
-            
-            setActiveType(selectedType);
-            
-            const content = document.getElementById('addChoreAccordion-content');
-            if (content && content.classList.contains('open')) toggleAccordion('addChoreAccordion');
-
-            saveData();
-        };
-
-        // --- NOTES LOGIC ---
-        window.saveNotes = function() {
+        function saveNotes() {
             const input = document.getElementById('notesInput');
             if (!input) return;
             const text = input.value.trim();
             if (!text) return;
 
-            const currentWeekStr = formatDate(getMonday(new Date()));
+            const today = new Date();
+            const dateStr = formatDate(today);
             if (!notesLog) notesLog = {};
-            notesLog[currentWeekStr] = text;
+            notesLog[dateStr] = text;
             localStorage.setItem(NOTES_KEY, JSON.stringify(notesLog));
 
             const btn = document.getElementById('saveNotesBtn');
             if (btn) {
                 const originalText = btn.innerHTML;
-                btn.innerHTML = `<i class="ph ph-check mr-1"></i> Saved`;
+                btn.innerHTML = `<i class="ph ph-check text-lg mr-1"></i> Saved!`;
                 btn.classList.replace('bg-slate-900', 'bg-dashboard-success');
+                btn.classList.replace('hover:bg-slate-800', 'hover:bg-emerald-600');
+                
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.classList.replace('bg-dashboard-success', 'bg-slate-900');
+                    btn.classList.replace('hover:bg-emerald-600', 'hover:bg-slate-800');
                 }, 2000);
             }
+
             renderNotesHistory();
-        };
+        }
 
         function renderNotesHistory() {
             const container = document.getElementById('notesHistory');
             if (!container) return;
             container.innerHTML = '';
             
-            const weeks = Object.keys(notesLog).sort((a, b) => new Date(b) - new Date(a));
-            if (weeks.length === 0) {
-                container.innerHTML = '<div class="text-sm text-dashboard-muted italic py-4 text-center bg-white rounded-lg border border-slate-200">No notes saved yet.</div>';
+            if (!notesLog) notesLog = {};
+            const dates = Object.keys(notesLog).sort((a, b) => new Date(b) - new Date(a));
+            
+            if (dates.length === 0) {
+                container.innerHTML = '<div class="text-sm text-dashboard-muted italic py-4 text-center bg-white rounded-lg border border-slate-200">No notes saved yet. Jot down plan or updates!</div>';
             } else {
-                weeks.forEach(weekStr => {
+                dates.forEach(dateStr => {
                     const entry = document.createElement('div');
                     entry.className = 'bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col gap-1';
-                    const d = new Date(weekStr + 'T12:00:00');
+                    
+                    const d = new Date(dateStr + 'T12:00:00');
+                    const dateDisplay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    
                     entry.innerHTML = `
-                        <div class="text-xs font-semibold text-yellow-600 tracking-wide uppercase">Uge ${getISOWeek(weekStr)} (${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})</div>
-                        <div class="text-sm text-dashboard-text whitespace-pre-wrap">${escapeHTML(notesLog[weekStr])}</div>
+                        <div class="text-xs font-semibold text-yellow-600 tracking-wide uppercase">${dateDisplay}</div>
+                        <div class="text-sm text-dashboard-text whitespace-pre-wrap">${escapeHTML(notesLog[dateStr])}</div>
                     `;
                     container.appendChild(entry);
                 });
             }
-            const currentWeekStr = formatDate(getMonday(new Date()));
+
+            const todayStr = formatDate(new Date());
             const input = document.getElementById('notesInput');
-            if (input && notesLog[currentWeekStr]) input.value = notesLog[currentWeekStr];
+            if (input && notesLog[todayStr]) {
+                input.value = notesLog[todayStr];
+            }
         }
 
-        window.clearAllData = function() {
-            if(confirm("CRITICAL WARNING: Delete ALL matrix data?")) {
+        function clearAllData() {
+            if(confirm("CRITICAL WARNING: This will delete ALL data. Proceed?")) {
                 chores = [];
-                notesLog = {};
                 localStorage.removeItem(STORAGE_KEY);
+                
+                notesLog = {};
                 localStorage.removeItem(NOTES_KEY);
-                renderMatrix();
+                
                 renderNotesHistory();
+                renderAll();
+
                 toggleAccordion('settingsAccordion');
             }
-        };
+        }
+
+        function renderAll() {
+            const currentChores = chores.filter(h => h.type === activeType);
+            const isDaily = activeType === 'daily';
+
+            if (currentChores.length === 0) {
+                matrixView.innerHTML = '';
+                emptyMatrixState.style.display = 'flex';
+                return;
+            } else {
+                emptyMatrixState.style.display = 'none';
+            }
+
+            const timelines = isDaily ? getPastDates(DAYS_TO_SHOW) : getPastISOWeeks(WEEKS_TO_SHOW);
+            
+            // Fix overlapping mobile format issue: Locked min-width bounds and sticky properties
+            let html = `
+                <table class="w-full border-collapse text-left text-sm table-fixed min-w-[500px]">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50/70">
+                            <!-- Sticky Chore Name zone with background to completely cover columns scrolling behind -->
+                            <th class="sticky left-0 bg-slate-50/95 z-20 px-3 py-4 text-xs font-bold text-dashboard-muted uppercase tracking-wider w-[140px] sm:w-[180px] min-w-[140px] border-r border-slate-200 shadow-sticky">
+                                Chore Name
+                            </th>
+                            ${timelines.map(pt => `
+                                <th class="px-2 py-4 text-center align-middle font-medium border-b border-slate-100 min-w-[65px]">
+                                    <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">${pt.label}</div>
+                                    <div class="text-sm font-bold text-dashboard-text mt-0.5">${pt.meta}</div>
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+            `;
+
+            currentChores.forEach(chore => {
+                const isRotating = !!chore.isRotating;
+                const history = chore.history || {};
+
+                html += `
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <!-- Sticky left name with white background & shadow overlap block -->
+                        <td class="sticky left-0 bg-white z-10 px-3 py-3 border-r border-slate-200 shadow-sticky w-[140px] sm:w-[180px] min-w-[140px] flex-col justify-start">
+                            <div class="flex items-start justify-between gap-1 group">
+                                <span class="font-semibold text-dashboard-text leading-snug break-words truncate max-w-[100px] sm:max-w-[140px]" title="${escapeHTML(chore.name)}">
+                                    ${escapeHTML(chore.name)}
+                                </span>
+                                <button onclick="deleteChore('${chore.id}')" class="text-slate-300 hover:text-dashboard-danger opacity-0 group-hover:opacity-100 transition-opacity p-0.5 shrink-0 self-start">
+                                    <i class="ph ph-trash text-xs"></i>
+                                </button>
+                            </div>
+                            <!-- Small Rotate description inside sticky margin -->
+                            ${isRotating ? `
+                                <div class="text-[9px] text-indigo-500 font-semibold flex items-center gap-1 mt-1 break-words">
+                                    <i class="ph ph-arrows-clockwise text-[10px] shrink-0"></i>
+                                    <span class="truncate max-w-[90px] sm:max-w-[120px]" title="${escapeHTML(getRotationTask(chore, timelines[timelines.length - 1].id))}">
+                                        ${escapeHTML(getRotationTask(chore, timelines[timelines.length - 1].id))}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </td>
+                `;
+
+                timelines.forEach(pt => {
+                    const isChecked = !!history[pt.id];
+                    const isBeforeGenesis = pt.id < chore.createdAt;
+                    
+                    let cellHTML = '';
+                    if (isBeforeGenesis) {
+                        cellHTML = `
+                            <div class="w-10 h-10 mx-auto flex items-center justify-center opacity-30 text-slate-300">
+                                <i class="ph ph-minus text-sm"></i>
+                            </div>
+                        `;
+                    } else {
+                        let activeColor = 'border-dashboard-success text-dashboard-success';
+                        let activeBg = 'bg-dashboard-success/15';
+                        
+                        if (activeType === 'daily') {
+                            activeColor = 'border-dashboard-warning text-dashboard-warning';
+                            activeBg = 'bg-dashboard-warning/15';
+                        } else if (activeType === 'admin') {
+                            activeColor = 'border-blue-500 text-blue-500';
+                            activeBg = 'bg-blue-500/15';
+                        } else if (activeType === 'maintenance') {
+                            activeColor = 'border-amber-500 text-amber-500';
+                            activeBg = 'bg-amber-500/15';
+                        }
+
+                        // Rotating info label for specific days
+                        let rotationLabel = '';
+                        if (isRotating) {
+                            const task = getRotationTask(chore, pt.id);
+                            if (task) {
+                                rotationLabel = `
+                                    <span class="text-[8px] font-medium text-slate-400 block mt-1 leading-tight max-w-[55px] truncate mx-auto" title="${escapeHTML(task)}">
+                                        ${escapeHTML(task)}
+                                    </span>
+                                `;
+                            }
+                        }
+
+                        cellHTML = `
+                            <div class="flex flex-col items-center justify-center py-1">
+                                <button 
+                                    onclick="toggleMatrixHistory('${chore.id}', '${pt.id}')"
+                                    class="w-10 h-10 rounded-lg border-2 flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-slate-300 ${
+                                        isChecked 
+                                        ? `${activeBg} ${activeColor} node-active` 
+                                        : 'border-slate-200 bg-white hover:border-slate-300 text-transparent'
+                                    }"
+                                >
+                                    <i class="ph-bold ph-check text-base"></i>
+                                </button>
+                                ${rotationLabel}
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        <td class="p-1.5 text-center border-b border-slate-100 min-w-[65px]">
+                            ${cellHTML}
+                        </td>
+                    `;
+                });
+
+                html += `</tr>`;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            matrixView.innerHTML = html;
+            
+            // Smart autoscroll matrix container over to point right (latest events) on start
+            setTimeout(() => {
+                const grid = document.querySelector('.matrix-container');
+                if (grid) grid.scrollLeft = grid.scrollWidth;
+            }, 50);
+        }
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
