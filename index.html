@@ -106,11 +106,11 @@
             padding-bottom: 0;
         }
         .accordion-content.open {
-            max-height: 500px; 
+            max-height: 800px; 
             opacity: 1;
             padding-top: 1.5rem; 
             padding-bottom: 1.5rem;
-            overflow-y: auto;
+            overflow-y: visible;
         }
         
         .accordion-icon {
@@ -162,7 +162,7 @@
                 <!-- Tabs injected via JS -->
             </div>
 
-            <div class="p-6 md:p-8 flex flex-col min-h-[250px]" id="activeChoreContainer">
+            <div class="p-6 md:p-8 flex flex-col min-h-[300px]" id="activeChoreContainer">
                 <!-- Populated via JS -->
                 <div id="emptyTabsState" class="flex flex-col items-center justify-center py-10 text-center h-full">
                     <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-400">
@@ -204,25 +204,41 @@
                                 <span class="text-sm font-medium text-dashboard-text">Maintenance Log</span>
                             </label>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                             <div class="flex-1 w-full relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none h-10">
                                     <i class="ph ph-tag text-slate-400"></i>
                                 </div>
                                 <input 
                                     type="text" 
                                     id="choreInput" 
-                                    class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-sm transition-shadow" 
-                                    placeholder="e.g., Vacuum Floors, Pay Bills, Replace Filter"
+                                    class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-sm transition-shadow h-10" 
+                                    placeholder="e.g., Weekly Cleaning, Pay Bills, Replace Filter"
                                 >
                             </div>
                             <button 
                                 id="addChoreBtn"
-                                class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm whitespace-nowrap"
+                                class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm whitespace-nowrap h-10"
                             >
                                 Initialize Tracker
                             </button>
                         </div>
+
+                        <!-- Rotation Feature Toggle -->
+                        <div class="border-t border-slate-200 pt-3 mt-1">
+                            <label class="flex items-center gap-2 cursor-pointer mb-3">
+                                <input type="checkbox" id="isRotatingCheck" onchange="toggleRotationInput()" class="text-dashboard-primary focus:ring-dashboard-primary w-4 h-4 rounded border-slate-300">
+                                <span class="text-sm font-medium text-dashboard-text">This is a rotating chore (cycles through a list of sub-tasks weekly)</span>
+                            </label>
+                            
+                            <div id="rotationInputContainer" class="hidden">
+                                <label class="block text-xs font-semibold text-dashboard-muted uppercase tracking-wider mb-1.5">Enter sub-tasks in order (one per line)</label>
+                                <textarea id="rotationInput" rows="3" class="w-full p-3 border border-slate-300 rounded-lg bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-dashboard-primary focus:border-dashboard-primary text-sm transition-shadow resize-none" placeholder="Living Room&#10;Bathrooms&#10;Kitchen Deep Clean"></textarea>
+                                <p class="text-xs text-slate-500 mt-1.5"><i class="ph ph-info mr-1"></i> Week 1 will assign the first task, Week 2 the second, and then it will loop.</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -270,7 +286,7 @@
                         <!-- Tabs injected via JS -->
                     </div>
                     
-                    <div class="p-6 flex flex-col min-h-[250px]" id="activeMaintenanceContainer">
+                    <div class="p-6 flex flex-col min-h-[300px]" id="activeMaintenanceContainer">
                         <div id="emptyMaintenanceState" class="flex flex-col items-center justify-center py-10 text-center h-full">
                             <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-400">
                                 <i class="ph ph-wrench text-3xl"></i>
@@ -422,6 +438,24 @@
             }
             return weeks;
         }
+        
+        function getWeeksElapsed(startStr, endStr) {
+            const start = new Date(startStr + 'T12:00:00');
+            const end = new Date(endStr + 'T12:00:00');
+            const diffTime = end - start;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+        }
+
+        function getRotationTaskForWeek(chore, weekStr) {
+            if (!chore.isRotating || !chore.rotation || chore.rotation.length === 0) return null;
+            if (weekStr < chore.createdAt) return null;
+            
+            const weeksElapsed = getWeeksElapsed(chore.createdAt, weekStr);
+            if (weeksElapsed < 0) return null;
+            
+            const index = weeksElapsed % chore.rotation.length;
+            return chore.rotation[index];
+        }
 
         function getChoresByType(type) {
             return chores.filter(h => h.type === type);
@@ -476,7 +510,6 @@
             let current = 0;
             const history = chore.history || {};
             
-            // Created week vs Current week
             const start = new Date(chore.createdAt + 'T12:00:00');
             const end = getMonday(new Date());
             end.setHours(12,0,0,0);
@@ -527,6 +560,24 @@
             renderAll();
         }
 
+        function toggleRotationInput() {
+            const isChecked = document.getElementById('isRotatingCheck').checked;
+            const container = document.getElementById('rotationInputContainer');
+            if (isChecked) {
+                container.classList.remove('hidden');
+                container.classList.add('block');
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('block');
+            }
+            
+            // Adjust accordion height dynamically
+            const content = document.getElementById('addChoreAccordion-content');
+            if (content.classList.contains('open')) {
+                content.style.maxHeight = '800px'; 
+            }
+        }
+
         function handleAddChore() {
             if (!choreInput) return;
             const name = choreInput.value.trim();
@@ -538,6 +589,16 @@
                 if (radio.checked) {
                     selectedType = radio.value;
                     break;
+                }
+            }
+            
+            let isRotating = document.getElementById('isRotatingCheck').checked;
+            let rotationItems = [];
+            if (isRotating) {
+                const rawRotations = document.getElementById('rotationInput').value;
+                rotationItems = rawRotations.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+                if (rotationItems.length === 0) {
+                    isRotating = false; // Fallback if they checked the box but entered nothing
                 }
             }
 
@@ -552,7 +613,9 @@
                 name: name,
                 type: selectedType,
                 history: {},
-                createdAt: createdWeek
+                createdAt: createdWeek,
+                isRotating: isRotating,
+                rotation: rotationItems
             };
 
             chores.push(newChore);
@@ -569,7 +632,11 @@
                 activeChoreId = newChore.id; 
             }
             
+            // Reset form
             choreInput.value = '';
+            document.getElementById('isRotatingCheck').checked = false;
+            document.getElementById('rotationInput').value = '';
+            toggleRotationInput();
             
             const content = document.getElementById('addChoreAccordion-content');
             if (content && content.classList.contains('open')) {
@@ -769,9 +836,24 @@
             const streakColor = streak > 0 ? 'text-dashboard-success' : 'text-dashboard-muted';
             let baseColorClass = activeType === 'household' ? 'bg-dashboard-success border-dashboard-success text-white' : 'bg-blue-500 border-blue-500 text-white';
             let hoverBaseClass = activeType === 'household' ? 'hover:border-dashboard-success text-dashboard-success' : 'hover:border-blue-500 text-blue-500';
+            
+            let rotationHeaderHTML = '';
+            if (chore.isRotating) {
+                const currentTask = getRotationTaskForWeek(chore, currentWeekStr);
+                if (currentTask) {
+                    rotationHeaderHTML = `
+                        <div class="mt-4 bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 inline-block shadow-sm">
+                            <span class="text-[10px] text-dashboard-muted font-bold uppercase tracking-widest block mb-1">This Week's Task</span>
+                            <span class="text-sm font-semibold text-dashboard-primary flex items-center gap-2">
+                                <i class="ph ph-arrows-clockwise text-dashboard-success text-lg"></i> ${escapeHTML(currentTask)}
+                            </span>
+                        </div>
+                    `;
+                }
+            }
 
             let html = `
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                     <div>
                         <h2 class="text-2xl font-bold text-dashboard-text">${escapeHTML(chore.name)}</h2>
                         <div class="flex items-center gap-4 mt-2">
@@ -781,19 +863,20 @@
                             </span>
                             <span class="text-xs text-dashboard-muted font-medium">Best: ${maxStreak}</span>
                         </div>
+                        ${rotationHeaderHTML}
                     </div>
-                    <button onclick="deleteChore('${chore.id}')" class="text-slate-400 hover:text-dashboard-danger hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium flex items-center gap-2 self-start sm:self-auto border border-transparent hover:border-red-100">
+                    <button onclick="deleteChore('${chore.id}')" class="text-slate-400 hover:text-dashboard-danger hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium flex items-center gap-2 self-start border border-transparent hover:border-red-100 mt-1">
                         <i class="ph ph-trash"></i> Delete
                     </button>
                 </div>
 
-                <div class="mb-2 flex justify-between items-center text-xs font-semibold uppercase tracking-wider">
+                <div class="mb-2 flex justify-between items-center text-xs font-semibold uppercase tracking-wider mt-4">
                     <span class="text-dashboard-muted">Past ${WEEKS_TO_SHOW} Weeks</span>
                     <span class="text-slate-400">Created: Wk of ${new Date(chore.createdAt + 'T12:00:00').toLocaleDateString('en-US', {month: 'short', day:'numeric'})}</span>
                 </div>
                 
                 <div class="chain-container overflow-x-auto pb-4 -mx-2 px-2" id="gridContainer">
-                    <div class="flex items-center gap-3 min-w-max h-20">
+                    <div class="flex items-start gap-3 min-w-max h-28 pt-2">
             `;
 
             weeks.forEach((weekStr) => {
@@ -805,12 +888,12 @@
                 const monthShort = d.toLocaleDateString('en-US', { month: 'short' });
                 const dayNum = d.getDate();
 
-                let btnClasses = "w-14 h-14 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border-2 relative group shadow-sm";
+                let btnClasses = "w-14 h-14 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border-2 relative group shadow-sm shrink-0";
                 let textClasses = "text-xs font-bold z-10 text-center";
                 let iconHTML = '';
                 
                 if (isBeforeCreation) {
-                    btnClasses += " bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed";
+                    btnClasses += " bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed shadow-none";
                     textClasses += " text-slate-300";
                     iconHTML = `<i class="ph ph-minus text-slate-300 z-10 text-lg"></i>`;
                 } else {
@@ -829,13 +912,22 @@
                         iconHTML = `<span class="${textClasses}">${monthShort}<br>${dayNum}</span>`;
                     }
                 }
+                
+                let subTaskHTML = '';
+                if (chore.isRotating && !isBeforeCreation) {
+                    const taskName = getRotationTaskForWeek(chore, weekStr);
+                    if (taskName) {
+                        subTaskHTML = `<span class="text-[10px] font-medium text-slate-500 text-center leading-tight mt-1 w-14 truncate" title="${escapeHTML(taskName)}">${escapeHTML(taskName)}</span>`;
+                    }
+                }
 
                 html += `
-                    <div class="flex flex-col items-center gap-1.5">
+                    <div class="flex flex-col items-center gap-1.5 w-14">
                         <span class="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Wk of</span>
                         <button class="${btnClasses}" ${!isBeforeCreation ? `onclick="toggleWeek('${chore.id}', '${weekStr}')"` : ''}>
                             ${iconHTML}
                         </button>
+                        ${subTaskHTML}
                     </div>
                 `;
             });
@@ -915,22 +1007,40 @@
             const weeks = getPastWeeks(WEEKS_TO_SHOW);
             const currentWeekStr = formatDate(getMonday(new Date()));
             const history = chore.history || {};
+            
+            let rotationHeaderHTML = '';
+            if (chore.isRotating) {
+                const currentTask = getRotationTaskForWeek(chore, currentWeekStr);
+                if (currentTask) {
+                    rotationHeaderHTML = `
+                        <div class="mt-4 bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 inline-block shadow-sm">
+                            <span class="text-[10px] text-dashboard-muted font-bold uppercase tracking-widest block mb-1">This Week's Task</span>
+                            <span class="text-sm font-semibold text-dashboard-primary flex items-center gap-2">
+                                <i class="ph ph-arrows-clockwise text-amber-500 text-lg"></i> ${escapeHTML(currentTask)}
+                            </span>
+                        </div>
+                    `;
+                }
+            }
 
             let html = `
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <h3 class="text-xl font-bold text-dashboard-text">${escapeHTML(chore.name)}</h3>
-                    <button onclick="deleteChore('${chore.id}')" class="text-slate-400 hover:text-dashboard-danger hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium flex items-center gap-2 self-start sm:self-auto border border-transparent hover:border-red-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-dashboard-text">${escapeHTML(chore.name)}</h3>
+                        ${rotationHeaderHTML}
+                    </div>
+                    <button onclick="deleteChore('${chore.id}')" class="text-slate-400 hover:text-dashboard-danger hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium flex items-center gap-2 self-start border border-transparent hover:border-red-100">
                         <i class="ph ph-trash"></i> Delete
                     </button>
                 </div>
 
-                <div class="mb-2 flex justify-between items-center text-xs font-semibold uppercase tracking-wider">
+                <div class="mb-2 flex justify-between items-center text-xs font-semibold uppercase tracking-wider mt-2">
                     <span class="text-dashboard-muted">Past ${WEEKS_TO_SHOW} Weeks</span>
                     <span class="text-slate-400">Created: Wk of ${new Date(chore.createdAt + 'T12:00:00').toLocaleDateString('en-US', {month: 'short', day:'numeric'})}</span>
                 </div>
 
                 <div class="chain-container overflow-x-auto pb-4 -mx-2 px-2" id="grid-maint-${chore.id}">
-                    <div class="flex items-center gap-3 min-w-max h-20">
+                    <div class="flex items-start gap-3 min-w-max h-28 pt-2">
             `;
 
             weeks.forEach((weekStr) => {
@@ -942,12 +1052,12 @@
                 const monthShort = d.toLocaleDateString('en-US', { month: 'short' });
                 const dayNum = d.getDate();
 
-                let btnClasses = "w-14 h-14 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border-2 relative group shadow-sm";
+                let btnClasses = "w-14 h-14 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border-2 relative group shadow-sm shrink-0";
                 let textClasses = "text-xs font-bold z-10 text-center";
                 let iconHTML = '';
 
                 if (isBeforeCreation) {
-                    btnClasses += " bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed";
+                    btnClasses += " bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed shadow-none";
                     textClasses += " text-slate-300";
                     iconHTML = `<i class="ph ph-minus text-slate-300 z-10 text-lg"></i>`;
                 } else {
@@ -962,13 +1072,22 @@
                         iconHTML = `<span class="${textClasses}">${monthShort}<br>${dayNum}</span>`;
                     }
                 }
+                
+                let subTaskHTML = '';
+                if (chore.isRotating && !isBeforeCreation) {
+                    const taskName = getRotationTaskForWeek(chore, weekStr);
+                    if (taskName) {
+                        subTaskHTML = `<span class="text-[10px] font-medium text-slate-500 text-center leading-tight mt-1 w-14 truncate" title="${escapeHTML(taskName)}">${escapeHTML(taskName)}</span>`;
+                    }
+                }
 
                 html += `
-                    <div class="flex flex-col items-center gap-1.5">
+                    <div class="flex flex-col items-center gap-1.5 w-14">
                         <span class="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Wk of</span>
                         <button class="${btnClasses}" ${!isBeforeCreation ? `onclick="toggleWeek('${chore.id}', '${weekStr}')"` : ''}>
                             ${iconHTML}
                         </button>
+                        ${subTaskHTML}
                     </div>
                 `;
             });
